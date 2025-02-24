@@ -23,14 +23,13 @@ jobs:
           extended: true # Required if your theme uses SCSS/SASS
 
       - name: Build Site
-        run: hugo --minify # Build the site and minify output
+        run: hugo --minify --config hugo.toml # Add --config flag Build the site and minify output
 
       - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+        uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }} # Automatically provided, no need to create a secret
           publish_dir: ./public  # The directory Hugo outputs to (default: 'public')
           # cname: box3d.games # Uncomment this line and REMOVE the next if you DON'T have a custom domain
-          external_repository: <your_github_username>/<your_github_username>.github.io
-          publish_branch: main
-          keep_files: false
+          publish_branch: gh-pages  # Deploy to the 'gh-pages' branch
+          keep_files: false #Keep the .git Folder
