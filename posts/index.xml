@@ -1,0 +1,130 @@
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Posts on Box3D</title><link>https://box3d.games/posts/</link><description>Recent content in Posts on Box3D</description><generator>Hugo -- gohugo.io</generator><language>en</language><lastBuildDate>Mon, 24 Feb 2025 00:00:00 +0000</lastBuildDate><atom:link href="https://box3d.games/posts/index.xml" rel="self" type="application/rss+xml"/><item><title>Getting Started with Box3D</title><link>https://box3d.games/posts/2025/02/getting-started-with-box3d/</link><pubDate>Mon, 24 Feb 2025 00:00:00 +0000</pubDate><guid>https://box3d.games/posts/2025/02/getting-started-with-box3d/</guid><description>&lt;p>Okay, so I&amp;rsquo;ve decided to embark on what&amp;rsquo;s probably going to be the most challenging engineering project I&amp;rsquo;ve undertaken so far: I&amp;rsquo;m going to fork Box2D, the popular 2D physics engine, and extend it to
+support 3D physics.&lt;/p>
+&lt;p>Why? I&amp;rsquo;ve been a physics enthusiast since my college days, and I&amp;rsquo;ve dabbled in game development on and off for the past decade. I&amp;rsquo;ve always wanted to combine these passions, and creating my own
+physics engine is the obvious next step.&lt;/p></description><content type="html"><![CDATA[<p>Okay, so I&rsquo;ve decided to embark on what&rsquo;s probably going to be the most challenging engineering project I&rsquo;ve undertaken so far: I&rsquo;m going to fork Box2D, the popular 2D physics engine, and extend it to
+support 3D physics.</p>
+<p>Why? I&rsquo;ve been a physics enthusiast since my college days, and I&rsquo;ve dabbled in game development on and off for the past decade. I&rsquo;ve always wanted to combine these passions, and creating my own
+physics engine is the obvious next step.</p>
+<p>I know, this is a huge undertaking. It&rsquo;s not something I expect to finish in a weekend. But I&rsquo;m excited about the learning opportunity, and I figured I&rsquo;d
+document my journey here, starting with the very first steps.</p>
+<h2 id="why-box2d">Why Box2D?</h2>
+<p>Box2D is a great starting point for several reasons</p>
+<h4 id="mature-and-robust">Mature and Robust</h4>
+<p>Box2D has been around for years, it&rsquo;s well-tested, and it&rsquo;s used in countless games like Angry Birds. This means the core 2D logic is solid.
+Box2D is open sourced, so I can dig into the source code, and modify it to my heart&rsquo;s content (thanks to the MIT license).</p>
+<h4 id="syntax">Syntax</h4>
+<p>I&rsquo;m comfortable with C and C++, the languages the original Box2D is written in, which is perfect for performance-critical physics calculations. I&rsquo;m going to go with C++17.</p>
+<h4 id="2d-foundation">2D Foundation</h4>
+<p>Starting with a working 2D engine gives me a solid base. I can gradually add 3D features, rather than starting completely from scratch.</p>
+<h4 id="understanding-the-terrain">Understanding the Terrain</h4>
+<p>Before writing a single line of 3D code, I knew I had to get comfortable with the existing Box2D codebase. I&rsquo;m talking <em>really</em> comfortable. This isn&rsquo;t a &ldquo;skim the docs and jump in&rdquo; kind of project.
+I spent a good chunk of time just reading the code. Here&rsquo;s what I focused on.</p>
+<ul>
+<li>
+<p><strong>The b2World Class:</strong> This is the heart of the simulation, the container for everything. I needed to understand how it manages the time step, collision detection, and constraint solving.</p>
+</li>
+<li>
+<p><strong>b2Body, b2Fixture, b2Joint:</strong> These are the core building blocks. Bodies are the rigid objects, fixtures define their shapes and collision properties, and joints connect them. I traced how these
+classes interact.</p>
+</li>
+<li>
+<p><strong>b2Math:</strong> This is where all the 2D vector and matrix operations live. I needed to refresh my memory on linear algebra (dot products, cross products, etc.) and see how Box2D implements them.</p>
+</li>
+<li>
+<p><em><em>Collision Detection (b2Collide</em>.cpp):</em>* This is where the magic happens. I studied the algorithms used for detecting collisions between different shapes (especially the Separating Axis Theorem –
+SAT).</p>
+</li>
+<li>
+<p><strong>Constraint Solver (b2ContactSolver.cpp):</strong> This is probably the most complex part. It&rsquo;s responsible for making sure objects don&rsquo;t interpenetrate and that joints behave correctly. I spent a lot of
+time trying to wrap my head around the sequential impulse method.</p>
+</li>
+</ul>
+<h4 id="laying-the-groundwork-3d-math">Laying the Groundwork (3D Math)</h4>
+<p>The first real coding step is to start replacing the 2D math with 3D math. This is where a good 3D math library comes in. I decided to go with GLM (OpenGL Mathematics). It&rsquo;s a header-only C++ library
+that&rsquo;s designed to be similar to GLSL (the shader language), which I&rsquo;m somewhat familiar with. Since GLM is header-only, I just need to make sure the GLM directory is in my compiler&rsquo;s include path.</p>
+<p>I&rsquo;m also going to need classes for:</p>
+<ul>
+<li>3x3 Matrices <code>glm::mat3</code> For rotations.</li>
+<li>4x4 Matrices <code>glm::mat4</code>: for full transformations.</li>
+<li>Quaternions <code>glm::quat</code>: For representing rotations efficiently and avoiding gimbal lock.</li>
+<li>Transform <code>Box3D::Transform</code> update: The transform class needs to handle 3D. Here&rsquo;s a basic structure:</li>
+</ul>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c++" data-lang="c++"><span style="display:flex;"><span><span style="color:#66d9ef">namespace</span> Box3D {
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">class</span> <span style="color:#a6e22e">Transform</span> {
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">public</span><span style="color:#f92672">:</span>
+</span></span><span style="display:flex;"><span>    glm<span style="color:#f92672">::</span>vec3 position;
+</span></span><span style="display:flex;"><span>    glm<span style="color:#f92672">::</span>quat rotation;
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// ... (scale, methods for combining transforms, etc.)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>};
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><p>I&rsquo;m starting with the vector class, adding basic operations (addition, subtraction, dot product, cross product, normalization), and then gradually replacing <code>b2Vec2</code> throughout the codebase. I&rsquo;m
+expecting a lot of compiler errors at this stage, but that&rsquo;s okay. It&rsquo;s part of the process.</p>
+<p>My project structure includes a Box3D directory to house all the new 3D code, with subfolders for math, shapes, collision, etc., to keep things organized.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-c++" data-lang="c++"><span style="display:flex;"><span><span style="color:#75715e">// My new 3D vector class (using GLM)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;glm/glm.hpp&gt;</span><span style="color:#75715e">
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;glm/ext.hpp&gt;</span><span style="color:#75715e"> </span><span style="color:#75715e">// For potentially useful extensions like glm::to_string
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Use a namespace for Box3D to avoid naming conflicts
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">namespace</span> Box3D {
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Use &#39;using&#39; instead of typedef for better type aliasing
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#66d9ef">using</span> vec3 <span style="color:#f92672">=</span> glm<span style="color:#f92672">::</span>vec3;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>} <span style="color:#75715e">// namespace Box3D
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#75715e">// Example Usage (can be in a separate .cpp file or a test file)
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span><span style="color:#75715e">#include</span> <span style="color:#75715e">&lt;iostream&gt;</span><span style="color:#75715e"> </span><span style="color:#75715e">// For printing
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span><span style="color:#66d9ef">int</span> <span style="color:#a6e22e">main</span>() {
+</span></span><span style="display:flex;"><span>    Box3D<span style="color:#f92672">::</span>vec3 a(<span style="color:#ae81ff">1.0f</span>, <span style="color:#ae81ff">2.0f</span>, <span style="color:#ae81ff">3.0f</span>);
+</span></span><span style="display:flex;"><span>    Box3D<span style="color:#f92672">::</span>vec3 b(<span style="color:#ae81ff">4.0f</span>, <span style="color:#ae81ff">5.0f</span>, <span style="color:#ae81ff">6.0f</span>);
+</span></span><span style="display:flex;"><span>    Box3D<span style="color:#f92672">::</span>vec3 c <span style="color:#f92672">=</span> a <span style="color:#f92672">+</span> b; <span style="color:#75715e">// Vector addition
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;c = &#34;</span> <span style="color:#f92672">&lt;&lt;</span> glm<span style="color:#f92672">::</span>to_string(c) <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl; <span style="color:#75715e">// Output using GLM&#39;s string conversion
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>
+</span></span><span style="display:flex;"><span>    <span style="color:#75715e">// Demonstrating dot product:
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    <span style="color:#66d9ef">float</span> dot_product <span style="color:#f92672">=</span> glm<span style="color:#f92672">::</span>dot(a, b);
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Dot product of a and b: &#34;</span> <span style="color:#f92672">&lt;&lt;</span> dot_product <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>     <span style="color:#75715e">// Demonstrating cross product:
+</span></span></span><span style="display:flex;"><span><span style="color:#75715e"></span>    Box3D<span style="color:#f92672">::</span>vec3 cross_product <span style="color:#f92672">=</span> glm<span style="color:#f92672">::</span>cross(a, b);
+</span></span><span style="display:flex;"><span>    std<span style="color:#f92672">::</span>cout <span style="color:#f92672">&lt;&lt;</span> <span style="color:#e6db74">&#34;Cross product of a and b: &#34;</span> <span style="color:#f92672">&lt;&lt;</span> glm<span style="color:#f92672">::</span>to_string(cross_product) <span style="color:#f92672">&lt;&lt;</span> std<span style="color:#f92672">::</span>endl;
+</span></span><span style="display:flex;"><span>    <span style="color:#66d9ef">return</span> <span style="color:#ae81ff">0</span>;
+</span></span><span style="display:flex;"><span>}
+</span></span></code></pre></div><h4 id="thinking-in-3d-shapes">Thinking in 3D (Shapes)</h4>
+<p>The plan of attack for 3D shapes is to extend the <code>b2Shape</code> class hierarchy. Here is the roadmap so far:</p>
+<ul>
+<li><code>b2CircleShape</code> becomes <code>Box3D::SphereShape</code>.</li>
+<li><code>b2PolygonShape</code> becomes <code>Box3D::ConvexHullShape</code>.</li>
+<li><code>b2EdgeShape</code> becomes <code>Box3D::PlaneShape</code></li>
+<li>Add <code>Box3D::BoxShape</code></li>
+</ul>
+<h4 id="3d-collision-detection">3D Collision Detection</h4>
+<p>Implementing the Separating Axis Theorem (or GJK) in 3D is a significant hurdle.</p>
+<ul>
+<li>
+<p>SAT (Separating Axis Theorem): Checks for collisions by projecting shapes onto axes. If projections don&rsquo;t overlap on <em>any</em> axis, the shapes are separated. Overlap on <em>all</em> axes means a collision.</p>
+</li>
+<li>
+<p>GJK (Gilbert-Johnson-Keerthi): An iterative alternative to SAT, often more efficient for complex shapes. It uses the Minkowski difference (all vector differences between shape points) and checks if a simplex (tetrahedron in 3D) within it contains the origin.</p>
+</li>
+<li>
+<p>Broad Phase vs. Narrow Phase: Collision detection uses two phases for efficiency.  <em>Broad phase</em> quickly eliminates non-colliding pairs (e.g., using AABBs or octrees). <em>Narrow phase</em> (SAT/GJK) performs precise checks on the remaining pairs.</p>
+</li>
+</ul>
+<h4 id="constraint-solver">Constraint Solver</h4>
+<p>Adapting the sequential impulse solver to 3D, especially the rotational constraints, is going to be complex.</p>
+<h4 id="joints">Joints</h4>
+<p>Extending the joint types to 3D will require careful consideration of how they work in 3D space.</p>
+<h4 id="testing-and-visual-debugging">Testing and Visual Debugging</h4>
+<p>I&rsquo;m planning to use Google Test as my testing framework. I&rsquo;m going to need to write extensive unit tests to make sure the physics is functioning correctly, including individual functions (like vector
+operations and matrix multiplications) and small simulations (integration tests) to test the interactions of multiple components.</p>
+<p>I&rsquo;ll be aiming to follow a Test-Driven Development (TDD) approach where possible, writing tests before implementing the features. And visual debugging tools will be essential. I plan to create a
+<code>Box3D::DebugDraw</code> class, similar to Box2D&rsquo;s <code>b2Draw</code>, that will allow me to render the simulation state in real-time. I&rsquo;ll be using the SDL2 library for window creation, input handling, and basic 3D rendering.</p>
+<p>This will enable me to visualize shapes, collision points, normals, joints, and other debugging information directly, making it much easier to understand what&rsquo;s happening in the simulation.</p>
+<h4 id="conclusion">Conclusion</h4>
+<p>I&rsquo;m fully expecting to hit roadblocks, get stuck, and have to rewrite code multiple times. But that&rsquo;s part of the learning process. I&rsquo;ll be documenting my progress (and struggles!) here, so stay tuned
+for more updates.</p>
+<p>If you&rsquo;re interested in following along, the code will be available on <a href="https://github.com/KelCodesStuff/Box3D">GitHub</a>. I&rsquo;ll be posting updates as I make progress.</p>
+]]></content></item></channel></rss>
