@@ -1,6 +1,6 @@
 baseURL = 'https://box3d.games/'
-title = "Box3D"
 languageCode = "en-us"
+title = "Box3D"
 theme = "hello-friend-ng"
 
 PygmentsCodeFences = true
