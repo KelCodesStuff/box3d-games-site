@@ -1,0 +1,119 @@
+baseURL = 'https://box3d.games/'
+title = "Box3D"
+languageCode = "en-us"
+theme = "hello-friend-ng"
+
+PygmentsCodeFences = true
+PygmentsStyle = "monokai"
+
+archetypeDir = "archetypes"
+contentDir = "content"
+dataDir = "data"
+layoutDir = "layouts"
+publishDir = "public"
+
+buildDrafts = false
+buildFuture = false
+buildExpired = false
+canonifyURLs = true
+
+enableRobotsTXT = true
+enableGitInfo = false
+enableEmoji = true
+enableMissingTranslationPlaceholders = false
+disableRSS = false
+disableSitemap = false
+disable404 = false
+disableHugoGeneratorInject = false
+
+[pagination]
+disableAliases = false
+pagerSize = 20
+path = 'page'
+
+[services]
+[services.rss]
+# Maximum number of items in the RSS feed.
+limit = 42
+
+[permalinks]
+posts = "/posts/:year/:month/:title/"
+
+[blackfriday]
+hrefTargetBlank = true
+
+[taxonomies]
+tag = "tags"
+category = "categories"
+series = "series"
+
+[params]
+dateform = "Jan 2, 2006"
+dateformShort = "Jan 2"
+dateformNum = "2006-01-02"
+dateformNumTime = "2006-01-02 15:04"
+
+# Metadata mostly used in document's head
+description = "A 3D Physics Engine for Game Development"
+keywords = "physics engine, game development, 3D, Box3D, iOS, programming"
+images = ["/images/box3d-logo.png"] # Replace with your actual image path
+
+# Home subtitle of the index page.
+homeSubtitle = "A 3D Physics Engine for Game Development"
+
+disableReadOtherPosts = false
+enableThemeToggle = false
+enableSharingButtons = true
+enableGlobalLanguageMenu = false
+
+customCSS = []
+customJS = []
+
+justifyContent = false
+
+[params.author]
+name = "Kel Reid"
+
+[params.footer]
+trademark = 2025
+rss = false
+copyright = true
+author = true
+topText = []
+bottomText = [
+    "Powered by <a href=\"http://gohugo.io\">Hugo</a>",
+]
+
+[params.favicon.color]
+mask = "#1b1c1d"
+msapplication = "#1b1c1d"
+theme = "#1b1c1d"
+
+[params.logo]
+logoMark = ""
+logoText = "/home/"
+logoHomeLink = "/"
+
+[[params.social]]
+name = "github"
+url = "https://github.com/KelCodesStuff"  # Use YOUR GitHub profile
+
+[[params.social]]
+name = "twitter"
+url = "https://twitter.com/kelcodesstuff" # Use YOUR Twitter profile (or remove)
+
+[languages]
+[languages.en.params]
+subtitle = "3D Physics Engine"
+
+[menu]
+[[menu.main]]
+identifier = "about"
+name = "About"
+url = "about/"
+weight = 1
+[[menu.main]]
+identifier = "posts"
+name = "Posts"
+url = "posts/"
+weight = 2
