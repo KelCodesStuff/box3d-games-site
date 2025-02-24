@@ -117,3 +117,8 @@ identifier = "posts"
 name = "Posts"
 url = "posts/"
 weight = 2
+[[menu.main]]
+identifier = "documentation"
+name = "Documentation"
+url = "documentation/"
+weight = 3
